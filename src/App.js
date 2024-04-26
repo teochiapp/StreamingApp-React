@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Discover from "./pages/Discover";
 import Library from "./pages/Library";
+import Calendar from "./pages/Calendar";
 import SidebarMenu from "./components/SidebarMenu";
 import styled from "styled-components";
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/calendar" element={<Calendar />} />
         </Routes>
       </div>
     </AppContainer>

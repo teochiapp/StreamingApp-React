@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import MovieInfo from "../components/MovieInfo";
 
 function ContentGrid({ moviesData }) {
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -15,10 +14,19 @@ function ContentGrid({ moviesData }) {
     setSelectedMovie(movie);
   };
 
+  const [library, setLibrary] = useState([]);
+
+  useEffect(() => {
+    const storedLibrary = localStorage.getItem("library");
+    if (storedLibrary) {
+      setLibrary(JSON.parse(storedLibrary));
+    }
+  }, []);
+
   return (
     <GridContainer>
       <Grid>
-        {moviesData.map((movie) => (
+        {library.map((movie) => (
           <div key={movie.titulo}>
             <Portrait
               src={movie.fotoPortada}
@@ -28,6 +36,7 @@ function ContentGrid({ moviesData }) {
           </div>
         ))}
       </Grid>    
+      
     </GridContainer>
   );
 }

@@ -1,19 +1,30 @@
-import { Link } from "react-router-dom";
+import React from "react";
 import styled from "styled-components";
+import Header from "../components/Header";
+import HomeGrid from "../components/HomeGrid";
+import moviesData from "./data/moviesData";
 
-function Home() {
+function Discover() {
+
   return (
     <HomeContainer>
-      <h1>Esta es la página de Home</h1>
+      <Header />
+      <GridContainer>
+        <HomeGrid moviesData={moviesData} />
+      </GridContainer>
     </HomeContainer>
   );
 }
 
-export default Home;
+export default Discover;
 
 const HomeContainer = styled.div`
-  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
   text-align: center;
+`;
+
+const GridContainer = styled.div`
+  display: grid;
+  gap: 20px;
 `;

@@ -36,7 +36,6 @@ function Header() {
           <CgProfile />
         </ButtonsContainer>
       </SearchContainer>
-      <Filters />
     </HeaderContainer>
   );
 }
@@ -46,15 +45,15 @@ export default Header;
 const HeaderContainer = styled.div``;
 
 const SearchContainer = styled.div`
-  margin: 3px auto 20px auto;
-  width: 50%;
+  margin: 0;
+  margin: 3px 0 20px;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
+  justify-content: start;
 `;
 
 const ButtonsContainer = styled.div`
+margin-left: 35vw;
     svg {
       font-size: 20px;
       color: #54545d;

@@ -1,27 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { BiLibrary, BiCameraMovie } from "react-icons/bi";
 import { BsFillPlayFill } from "react-icons/bs";
 import { CgClose } from "react-icons/cg";
+import { BsCalendar3 } from "react-icons/bs";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function MovieInfo({ selectedMovie }) {
   const [showTrailerModal, setShowTrailerModal] = useState(false);
-  if (!selectedMovie) {
-    return <p>Sin película</p>; // Si no hay película seleccionada, retorna null para no renderizar nada
-  }
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [notification, setNotification] = useState("");
 
-  const {
-    titulo,
-    duracion,
-    añoPublicacion,
-    descripcionCorta,
-    puntuacionIMDB,
-    fotoPortada,
-    generos,
-    director,
-    cast,
-    trailer,
-  } = selectedMovie;
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification("");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const handleWatchTrailer = () => {
     setShowTrailerModal(true);
@@ -34,14 +35,13 @@ function MovieInfo({ selectedMovie }) {
   const handleShowDirector = () => {
     // Concatenamos el nombre del director a la URL de búsqueda de Google
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
-      director
+      selectedMovie.director
     )}`;
     // Abrir una nueva ventana del navegador con la URL de búsqueda de Google
     window.open(googleSearchUrl, "_blank");
   };
 
-  const handleShowCast = (index) => {
-    const actor = cast[index];
+  const handleShowCast = (actor) => {
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
       actor
     )}`;
@@ -49,52 +49,134 @@ function MovieInfo({ selectedMovie }) {
   };
 
   const handleClickImbd = () => {
-    const googleSearchUrl = `https://www.google.com/search?q=${titulo} imbd`;
+    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+      selectedMovie.titulo
+    )} imbd`;
     window.open(googleSearchUrl, "_blank");
   };
 
+  const handleAddToLibrary = () => {
+    const library = JSON.parse(localStorage.getItem("library")) || [];
+
+    const existingIndex = library.findIndex(
+      (movie) => movie.titulo === selectedMovie.titulo
+    );
+
+    if (existingIndex !== -1) {
+      const updatedLibrary = [...library];
+      updatedLibrary.splice(existingIndex, 1);
+      localStorage.setItem("library", JSON.stringify(updatedLibrary));
+      setNotification(`Deleted from the library.`);
+    } else {
+      const updatedLibrary = [...library, selectedMovie];
+      localStorage.setItem("library", JSON.stringify(updatedLibrary));
+      setNotification(`Added to the Library`);
+    }
+  };
+
+  const handleAddCalendar = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleSaveDates = () => {
+    const calendarEvents = JSON.parse(localStorage.getItem("events")) || [];
+
+    const event = {
+      titulo: selectedMovie.titulo,
+      startDate,
+      endDate,
+    };
+
+    calendarEvents.push(event);
+
+    localStorage.setItem("events", JSON.stringify(calendarEvents));
+    setNotification(`Event added to the calendar.`);
+
+    setShowDatePicker(false); // Cierra el modal
+  };
+
   return (
-    <InfoContainer fotoPortada={fotoPortada}>
+    <InfoContainer fotoPortada={selectedMovie.fotoPortada}>
       <BlurOverlay />
       <ContentWrapper>
-        <Titulo large={titulo.length <= 12}>{titulo}</Titulo>
+        <Titulo large={selectedMovie.titulo.length <= 12}>
+          {selectedMovie.titulo}
+        </Titulo>
         <Row>
-          <p>{duracion}</p>
-          <p>{añoPublicacion}</p>
+          <p>{selectedMovie.duracion}</p>
+          <p>{selectedMovie.añoPublicacion}</p>
           <p onClick={handleClickImbd}>
-            {puntuacionIMDB}
-            <LogoImbd src="imbd.svg" alt="imbd-logo"/>
+            {selectedMovie.puntuacionIMDB}
+            <LogoImbd src="imbd.svg" alt="imbd-logo" />
           </p>
         </Row>
-        <Descripcion>{descripcionCorta}</Descripcion>
+        <Descripcion>{selectedMovie.descripcionCorta}</Descripcion>
         <TitleBox>Generos</TitleBox>
         <LabelBox>
-          {generos.map((genero, index) => (
+          {selectedMovie.generos.map((genero, index) => (
             <Box key={index}>{genero}</Box>
           ))}
         </LabelBox>
         <TitleBox>Director</TitleBox>
-        <Box onClick={handleShowDirector}>{director}</Box>
+        <Box onClick={handleShowDirector}>{selectedMovie.director}</Box>
         <TitleBox>Cast</TitleBox>
         <LabelBox>
-          {cast.map(
-            (
-              actor,
-              index
-            ) => (
-              <Box key={index} onClick={() => handleShowCast(index)}>
-                {actor}
-              </Box> 
-            )
-          )}
+          {selectedMovie.cast.map((actor, index) => (
+            <Box key={index} onClick={() => handleShowCast(actor)}>
+              {actor}
+            </Box>
+          ))}
         </LabelBox>
         <ButtonsContainer>
-          <Button>
+          <Button onClick={handleAddToLibrary}>
             <BiLibrary />
           </Button>
           <Button onClick={handleWatchTrailer}>
             <BiCameraMovie />
           </Button>
+          {/* Botón para agregar al calendario */}
+          <Button onClick={handleAddCalendar}>
+            <BsCalendar3 />
+          </Button>
+
+          {/* Notificación emergente */}
+          {notification && (
+            <Notification show={true}>
+              {notification}
+              <CloseButtonNotif onClick={() => setNotification("")}>
+                <CgClose />
+              </CloseButtonNotif>
+            </Notification>
+          )}
+
+          {/* Modal para seleccionar fechas */}
+          {showDatePicker && (
+            <DatePickerModal>
+              <CloseButtonNotif onClick={() => setShowDatePicker(false)}>
+                <CgClose />
+              </CloseButtonNotif>
+              <h3>Select Dates</h3>
+              <div>
+                <label>Start Date:</label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
+                />
+              </div>
+              <div>
+                <label>End Date:</label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
+                />
+              </div>
+              <SaveButton onClick={handleSaveDates}>Save</SaveButton>
+            </DatePickerModal>
+          )}
           <TextButton>
             <span>Show</span>
             <PlayButton>
@@ -102,17 +184,25 @@ function MovieInfo({ selectedMovie }) {
             </PlayButton>
           </TextButton>
         </ButtonsContainer>
+        {notification && (
+          <Notification show={true}>
+            {notification}
+            <CloseButtonNotif onClick={() => setNotification("")}>
+              <CgClose />
+            </CloseButtonNotif>
+          </Notification>
+        )}
       </ContentWrapper>
       {showTrailerModal && (
         <TrailerModal>
           <iframe
             width="1080"
             height="600"
-            src={trailer} // URL del tráiler de YouTube
+            src={selectedMovie.trailer}
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
+            allowFullScreen
           ></iframe>
           <CloseButton onClick={handleCloseTrailerModal}>
             <CgClose />
@@ -305,4 +395,80 @@ const CloseButton = styled.button`
   color: white;
   font-size: 16px;
   cursor: pointer;
+`;
+
+const Notification = styled.div`
+  position: fixed;
+  display: flex;
+  align-items: center;
+  bottom: 20px;
+  left: 35%;
+  padding: 10px;
+  pading-right: 100px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 5px;
+  z-index: 999;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  transition: opacity 0.3s ease-in-out;
+  transform: translateY(${(props) => (props.show ? 0 : 20)}px);
+  transition: transform 0.3s ease-in-out;
+`;
+
+const CloseButtonNotif = styled.button`
+  position: relative;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 20x;
+  cursor: pointer;
+`;
+
+const DatePickerModal = styled.div`
+  position: fixed;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  color: white;
+  z-index: 9999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h3 {
+    font-size: 20px;
+    padding: 5px 0;
+  }
+
+
+  div input {
+    margin-left: 5px;
+    background: rgba(255, 255, 255, 0.11);
+    color: white;
+    border-radius: 8px;
+    padding: 7px;
+    border-color: white;
+  }
+
+  div {
+    margin-bottom: 5px;
+  }
+
+  svg {
+    font-size: 19px;
+  }
+`;
+
+const SaveButton = styled.div`
+  background: #22b365;
+  color: white;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 5px;
 `;

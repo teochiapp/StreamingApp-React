@@ -15,7 +15,6 @@ function SidebarMenu() {
         <MenuItem title="Discover" icon={<AiOutlineCompass />} to="/discover" />
         <MenuItem title="Library" icon={<LuLibrary />} to="/library" />
         <MenuItem title="Calendar" icon={<BsCalendar3 />} to="/calendar" />
-        <MenuItem title="Settings" icon={<GrSettingsOption />} to="/settings" />
       </ul>
     </SidebarContainer>
   );
