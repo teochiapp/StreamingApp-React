@@ -5,6 +5,7 @@ import Discover from "./pages/Discover";
 import Library from "./pages/Library";
 import Calendar from "./pages/Calendar";
 import SidebarMenu from "./components/SidebarMenu";
+import SingleMovie from "./components/SingleMovie";
 import styled from "styled-components";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/discover" element={<Discover />} />
           <Route path="/library" element={<Library />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/movie/:title" element={<SingleMovie />} />
         </Routes>
       </div>
     </AppContainer>

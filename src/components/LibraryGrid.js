@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate
 
 function ContentGrid({ moviesData }) {
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const navigate = useNavigate(); // Instancia de navigate
 
   useEffect(() => {
     if (moviesData.length > 0) {
@@ -11,7 +13,7 @@ function ContentGrid({ moviesData }) {
   }, [moviesData]);
 
   const handleMovieClick = (movie) => {
-    setSelectedMovie(movie);
+    navigate(`/movie/${movie.titulo}`);
   };
 
   const [library, setLibrary] = useState([]);
@@ -31,12 +33,11 @@ function ContentGrid({ moviesData }) {
             <Portrait
               src={movie.fotoPortada}
               alt={movie.titulo}
-              onClick={() => handleMovieClick(movie)}
+              onClick={() => handleMovieClick(movie)} // Dispara la navegación
             />
           </div>
         ))}
       </Grid>    
-      
     </GridContainer>
   );
 }
@@ -77,7 +78,4 @@ const Grid = styled.div`
   @media screen and (max-width: 767px) {
     grid-template-columns: repeat(3, 1fr);
   }
-`;
-
-const InfoContainer = styled.div`
 `;

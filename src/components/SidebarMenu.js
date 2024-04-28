@@ -1,7 +1,6 @@
 import React from "react";
 import { BsCalendar3 } from "react-icons/bs";
 import { AiOutlineCompass, AiOutlineHome } from "react-icons/ai";
-import { GrSettingsOption } from "react-icons/gr";
 import { LuLibrary } from "react-icons/lu";
 import MenuItem from "./MenuItem";
 import styled from "styled-components";

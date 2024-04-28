@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
+import moviesData from "../pages/data/moviesData";
 import { BiLibrary, BiCameraMovie } from "react-icons/bi";
 import { BsFillPlayFill } from "react-icons/bs";
 import { CgClose } from "react-icons/cg";
@@ -7,7 +9,7 @@ import { BsCalendar3 } from "react-icons/bs";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-function MovieInfo({ selectedMovie }) {
+function MovieDetail() {
   const [showTrailerModal, setShowTrailerModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -23,6 +25,14 @@ function MovieInfo({ selectedMovie }) {
       return () => clearTimeout(timer);
     }
   }, [notification]);
+  const { title } = useParams();
+
+  // Encuentra la película correspondiente por título
+  const movie = moviesData.find((m) => m.titulo === title);
+
+  if (!movie) {
+    return <div>Película no encontrada</div>;
+  }
 
   const handleWatchTrailer = () => {
     setShowTrailerModal(true);
@@ -34,7 +44,7 @@ function MovieInfo({ selectedMovie }) {
 
   const handleShowDirector = () => {
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
-      selectedMovie.director
+      movie.director
     )}`;
     window.open(googleSearchUrl, "_blank");
   };
@@ -48,7 +58,7 @@ function MovieInfo({ selectedMovie }) {
 
   const handleClickImbd = () => {
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
-      selectedMovie.titulo
+      movie.titulo
     )} imbd`;
     window.open(googleSearchUrl, "_blank");
   };
@@ -57,7 +67,7 @@ function MovieInfo({ selectedMovie }) {
     const library = JSON.parse(localStorage.getItem("library")) || [];
 
     const existingIndex = library.findIndex(
-      (movie) => movie.titulo === selectedMovie.titulo
+      (movieIndex) => movie.titulo === movieIndex.titulo
     );
 
     if (existingIndex !== -1) {
@@ -66,7 +76,7 @@ function MovieInfo({ selectedMovie }) {
       localStorage.setItem("library", JSON.stringify(updatedLibrary));
       setNotification(`Deleted from the library.`);
     } else {
-      const updatedLibrary = [...library, selectedMovie];
+      const updatedLibrary = [...library, movie];
       localStorage.setItem("library", JSON.stringify(updatedLibrary));
       setNotification(`Added to the Library`);
     }
@@ -80,7 +90,7 @@ function MovieInfo({ selectedMovie }) {
     const calendarEvents = JSON.parse(localStorage.getItem("events")) || [];
 
     const event = {
-      titulo: selectedMovie.titulo,
+      titulo: movie.titulo,
       startDate,
       endDate,
     };
@@ -90,36 +100,34 @@ function MovieInfo({ selectedMovie }) {
     localStorage.setItem("events", JSON.stringify(calendarEvents));
     setNotification(`Event added to the calendar.`);
 
-    setShowDatePicker(false); // Cierra el modal
+    setShowDatePicker(false);
   };
 
   return (
-    <InfoContainer fotoPortada={selectedMovie.fotoPortada}>
-      <BlurOverlay />
+    <SingleContainer bgImage={movie.fotoPortada}>
+      <BlurOverlay /> 
       <ContentWrapper>
-        <Titulo large={selectedMovie.titulo.length <= 12}>
-          {selectedMovie.titulo}
-        </Titulo>
+        <Titulo large={movie.titulo.length <= 12}>{movie.titulo}</Titulo>
         <Row>
-          <p>{selectedMovie.duracion}</p>
-          <p>{selectedMovie.añoPublicacion}</p>
+          <p>{movie.duracion}</p>
+          <p>{movie.añoPublicacion}</p>
           <p onClick={handleClickImbd}>
-            {selectedMovie.puntuacionIMDB}
+            {movie.puntuacionIMDB}
             <LogoImbd src="imbd.svg" alt="imbd-logo" />
           </p>
         </Row>
-        <Descripcion>{selectedMovie.descripcionCorta}</Descripcion>
+        <Descripcion>{movie.descripcionCorta}</Descripcion>
         <TitleBox>Generos</TitleBox>
         <LabelBox>
-          {selectedMovie.generos.map((genero, index) => (
+          {movie.generos.map((genero, index) => (
             <Box key={index}>{genero}</Box>
           ))}
         </LabelBox>
         <TitleBox>Director</TitleBox>
-        <Box onClick={handleShowDirector}>{selectedMovie.director}</Box>
+        <Box onClick={handleShowDirector}>{movie.director}</Box>
         <TitleBox>Cast</TitleBox>
         <LabelBox>
-          {selectedMovie.cast.map((actor, index) => (
+          {movie.cast.map((actor, index) => (
             <Box key={index} onClick={() => handleShowCast(actor)}>
               {actor}
             </Box>
@@ -196,7 +204,7 @@ function MovieInfo({ selectedMovie }) {
           <iframe
             width="1080"
             height="600"
-            src={selectedMovie.trailer}
+            src={movie.trailer}
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -207,45 +215,40 @@ function MovieInfo({ selectedMovie }) {
           </CloseButton>
         </TrailerModal>
       )}
-    </InfoContainer>
+    </SingleContainer>
   );
 }
 
-export default MovieInfo;
+export default MovieDetail;
 
-const InfoContainer = styled.div`
-  position: relative;
-  height: 100%;
-  min-width: 22vw;
-  min-height: 100vh;
-  max-height: 800px !important;
-  background-image: url(${(props) => props.fotoPortada});
+const SingleContainer = styled.div`
+  position: relative; // Para permitir capas superpuestas
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width:100vw;
+  height: 100vh; // Ocupa toda la altura
+  background-image: ${(props) => `url(${props.bgImage})`}; // Establece la imagen de fondo
   background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
-  background-position: center center;
-  top: -125px;
-
-  h2 {
-    margin: 10px 0;
-    font-size: 40px;
-  }
 `;
 
 const BlurOverlay = styled.div`
-  position: absolute;
+  position: absolute; // Cubre todo el contenedor
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px); // Aplica desenfoque
+  background: rgba(0, 0, 0, 0.5); // Fondo con transparencia para realzar el desenfoque
 `;
 
 const ContentWrapper = styled.div`
-  position: relative;
-  z-index: 1;
+  position: relative; // Para situarlo sobre el BlurOverlay
+  z-index: 1; // Asegura que esté por encima del BlurOverlay
   padding: 20px;
-  color: white; /* Color del texto */
+  color: white;
 `;
 
 const Row = styled.div`
@@ -264,7 +267,7 @@ const Descripcion = styled.div`
 `;
 
 const Titulo = styled.div`
-  font-size: ${(props) => (props.large ? "40px" : "20px")};
+  font-size: 35px;
   font-family: "Orbitron", sans-serif;
   margin: 20px 0;
 `;
@@ -443,7 +446,6 @@ const DatePickerModal = styled.div`
     font-size: 20px;
     padding: 5px 0;
   }
-
 
   div input {
     margin-left: 5px;

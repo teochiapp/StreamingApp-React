@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom"; // Para redireccionar
 
 function HomeGrid({ moviesData }) {
-  const bestRating = moviesData.filter((movie) =>
-    movie.puntuacionIMDB >= 8.5
-  ).slice(0, 7);
+  const navigate = useNavigate(); // Hook para navegar a diferentes rutas
+  
+  const bestRating = moviesData.filter((movie) => movie.puntuacionIMDB >= 8.5).slice(0, 7);
 
-  const actionMovies = moviesData.filter((movie) =>
-    movie.generos.includes("Acción")
-  ).slice(0, 7);
+  const actionMovies = moviesData.filter((movie) => movie.generos.includes("Acción")).slice(0, 7);
 
-  const dramaMovies = moviesData.filter((movie) =>
-    movie.generos.includes("Drama")
-  ).slice(0, 7);
+  const dramaMovies = moviesData.filter((movie) => movie.generos.includes("Drama")).slice(0, 7);
 
-  const crimenMovies = moviesData.filter((movie) =>
-    movie.generos.includes("Crimen")
-  ).slice(0, 7);
+  const crimenMovies = moviesData.filter((movie) => movie.generos.includes("Crimen")).slice(0, 7);
+
+  const handleMovieClick = (movie) => {
+    navigate(`/movie/${movie.titulo}`);
+  };
 
   return (
     <GridContainer>
       <GenreTitle>Best Rating</GenreTitle>
       <Grid>
         {bestRating.map((movie) => (
-          <div key={movie.titulo}>
+          <div key={movie.titulo} onClick={() => handleMovieClick(movie)}>
             <Portrait src={movie.fotoPortada} alt={movie.titulo} />
           </div>
         ))}
@@ -31,7 +30,7 @@ function HomeGrid({ moviesData }) {
       <GenreTitle>Category - Action</GenreTitle>
       <Grid>
         {actionMovies.map((movie) => (
-          <div key={movie.titulo}>
+          <div key={movie.titulo} onClick={() => handleMovieClick(movie)}>
             <Portrait src={movie.fotoPortada} alt={movie.titulo} />
           </div>
         ))}
@@ -39,7 +38,7 @@ function HomeGrid({ moviesData }) {
       <GenreTitle>Category - Drama</GenreTitle>
       <Grid>
         {dramaMovies.map((movie) => (
-          <div key={movie.titulo}>
+          <div key={movie.titulo} onClick={() => handleMovieClick(movie)}>
             <Portrait src={movie.fotoPortada} alt={movie.titulo} />
           </div>
         ))}
@@ -47,7 +46,7 @@ function HomeGrid({ moviesData }) {
       <GenreTitle>Category - Crimen</GenreTitle>
       <Grid>
         {crimenMovies.map((movie) => (
-          <div key={movie.titulo}>
+          <div key={movie.titulo} onClick={() => handleMovieClick(movie)}>
             <Portrait src={movie.fotoPortada} alt={movie.titulo} />
           </div>
         ))}
@@ -63,8 +62,8 @@ const Portrait = styled.img`
   height: 160px;
   object-fit: cover;
   border-radius: 12px;
-  outline: 2px solid transparent;
-  transition: outline 0.3s;
+  outline: 2px solid transparente;
+  transición: outline 0.3s;
   &:hover {
     outline-color: white;
     cursor: pointer;
@@ -72,7 +71,7 @@ const Portrait = styled.img`
 `;
 
 const GridContainer = styled.div`
-  margin: 20px 20px;
+  margin: 20px;
   display: grid;
   gap: 20px;
 `;
@@ -95,7 +94,6 @@ const Grid = styled.div`
 `;
 
 const GenreTitle = styled.div`
-  display: 20px;
   text-align: start;
   font-size: 1.1em;
 `;
