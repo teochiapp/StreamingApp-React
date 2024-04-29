@@ -113,7 +113,7 @@ function MovieDetail() {
           <p>{movie.añoPublicacion}</p>
           <p onClick={handleClickImbd}>
             {movie.puntuacionIMDB}
-            <LogoImbd src="imbd.svg" alt="imbd-logo" />
+            <LogoImbd src="/imbd.svg" alt="imbd-logo" />
           </p>
         </Row>
         <Descripcion>{movie.descripcionCorta}</Descripcion>
@@ -259,6 +259,7 @@ const Row = styled.div`
     font-weight: 700;
     font-size: 0.8em;
   }
+  max-width: 40vw;
 `;
 
 const Descripcion = styled.div`
@@ -282,11 +283,11 @@ const LabelBox = styled.div`
 
 const Box = styled.div`
   margin-bottom: 5px;
-  padding: 3px 6px;
+  padding: 8px 20px !important;
   background-color: rgba(255, 255, 255, 0.13);
   color: white;
   font-size: 12px;
-  width: min-content;
+  width: max-content;
   min-width: 100px;
   cursor: pointer;
   border-radius: 20px;
@@ -294,6 +295,7 @@ const Box = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 `;
 
 const TitleBox = styled.div`
@@ -314,7 +316,7 @@ const LogoImbd = styled.img`
 const ButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
-  margin-top: 15px;
+  margin-top: 65px;
 `;
 
 const Button = styled.div`
